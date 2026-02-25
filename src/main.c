@@ -18,20 +18,22 @@ void clear(u8 *buffer, i32 bufferWidth, i32 width, i32 height, u8 color[4])
 
 int main()
 {
+    setbuf(stdout, NULL);
+
     RGFW_window *win =
-        RGFW_createWindow("RasterFari", 0, 0, 500, 500,
+        RGFW_createWindow("RasterFari", 0, 0, 800, 600,
                           RGFW_windowCenter | RGFW_windowTransparent);
     RGFW_window_setExitKey(win, RGFW_escape);
 
     RGFW_monitor *mon = RGFW_window_getMonitor(win);
-    i32 width = 500;
-    i32 height = 500;
+    i32 width = 800;
+    i32 height = 600;
 
-    if (mon)
-    {
-        width = (i32)((float)mon->mode.w * mon->pixelRatio);
-        height = (i32)((float)mon->mode.h * mon->pixelRatio);
-    }
+    // if (mon)
+    // {
+    //     width = (i32)((float)mon->mode.w * mon->pixelRatio);
+    //     height = (i32)((float)mon->mode.h * mon->pixelRatio);
+    // }
 
     u8 *buffer = (u8 *)RGFW_alloc((u32)(width * height * 4));
     RGFW_surface *surface =
@@ -59,7 +61,6 @@ int main()
 
     while (running)
     {
-
         while (RGFW_window_checkEvent(win, &event))
         {
             if (event.type == RGFW_quit ||
@@ -98,7 +99,7 @@ int main()
             char titleBuffer[64];
             snprintf(titleBuffer, sizeof(titleBuffer), "Game - FPS: %d",
                      frame_count);
-
+            printf("YOYOOY\n");
             RGFW_window_setName(win, titleBuffer);
             accumulated_time -= 1.0;
             frame_count = 0;
