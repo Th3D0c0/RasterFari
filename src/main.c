@@ -2,7 +2,6 @@
 #include <string.h>
 #include <time.h>
 
-#define RGFWDEF extern
 
 #include "RGFW.h"
 #include "Util.h"

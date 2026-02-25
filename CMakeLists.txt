@@ -36,6 +36,7 @@ elseif(UNIX AND NOT APPLE)
     # find_package is the "clean" way to find these on Linux
     find_package(X11 REQUIRED)
     find_package(OpenGL REQUIRED)
+    target_compile_options(${PROJECT_NAME} PRIVATE -fgnu89-inline)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
         X11 
