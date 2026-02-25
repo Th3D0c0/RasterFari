@@ -22,12 +22,11 @@ This project uses CMake to manage the build process. Windows and Linux compilers
 **1. Configure the project (Release mode):**
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build && cd build && ./RasterFari
-
+```
 **2. Configure the project (Debug mode):**
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build && cd build && ./RasterFari
-
----
+```
 
 ## Windows Build Instructions
 
@@ -37,6 +36,7 @@ cmake -B build
 cmake --build build --config Release
 cd build
 ./RasterFari
+```
 
 **2. Configure the project (Debug mode):**
 ```bash
@@ -44,3 +44,5 @@ cmake -B build
 cmake --build build --config Debug
 cd build
 ./RasterFari
+```
+
