@@ -6,6 +6,12 @@
 #include "RGFW.h"
 #include "Util.h"
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#endif
+
 void clear(u8 *buffer, i32 bufferWidth, i32 width, i32 height, u8 color[4])
 {
     if (color[0] == color[1] && color[0] == color[2] && color[0] == color[3])
@@ -17,7 +23,7 @@ void clear(u8 *buffer, i32 bufferWidth, i32 width, i32 height, u8 color[4])
 
 int main()
 {
-    setbuf(stdout, NULL);
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     RGFW_window *win =
         RGFW_createWindow("RasterFari", 0, 0, 800, 600,
@@ -49,11 +55,18 @@ int main()
         .buffer_width = width,
     };
 
-    i32 mouseX = 0.0f;
-    i32 mouseY = 0.0f;
+    i32 mouseX = 0;
+    i32 mouseY = 0;
 
+    #ifdef _WIN32
+    LARGE_INTEGER frequency;
+    LARGE_INTEGER last_time, current_time;
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&last_time);
+    #else
     struct timespec last_time, current_time;
     clock_gettime(CLOCK_MONOTONIC, &last_time);
+    #endif
     double elapsed_time;
     double accumulated_time = 0.0;
     int frame_count = 0;
@@ -84,11 +97,16 @@ int main()
                  (ivec2){.x = mouseX, .y = mouseY}, 3.0f, line_color);
 
         //--------Calculate FPS--------------
-        clock_gettime(CLOCK_MONOTONIC, &current_time);
-        elapsed_time =
-            (current_time.tv_sec - last_time.tv_sec) +
-            (current_time.tv_nsec - last_time.tv_nsec) / 1000000000.0;
+        #ifdef _WIN32
+        QueryPerformanceCounter(&current_time);
+        elapsed_time = (double)(current_time.QuadPart - last_time.QuadPart) / frequency.QuadPart;
         last_time = current_time;
+        #else
+        clock_gettime(CLOCK_MONOTONIC, &current_time);
+        elapsed_time = (current_time.tv_sec - last_time.tv_sec) +
+        (current_time.tv_nsec - last_time.tv_nsec) / 1000000000.0;
+        last_time = current_time;
+        #endif
 
         accumulated_time += elapsed_time;
         frame_count++;
