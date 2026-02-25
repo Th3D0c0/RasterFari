@@ -1,4 +1,3 @@
-#include <bits/time.h>
 #define RGFWDEF extern
 #include <stdio.h>
 #include <string.h>
@@ -99,7 +98,6 @@ int main()
             char titleBuffer[64];
             snprintf(titleBuffer, sizeof(titleBuffer), "Game - FPS: %d",
                      frame_count);
-            printf("YOYOOY\n");
             RGFW_window_setName(win, titleBuffer);
             accumulated_time -= 1.0;
             frame_count = 0;
