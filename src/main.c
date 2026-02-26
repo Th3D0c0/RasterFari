@@ -1,25 +1,7 @@
 #include <stdio.h>
-#include <string.h>
-#include <time.h>
-
 
 #include "RGFW.h"
 #include "Util.h"
-
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-#endif
-
-void clear(u8 *buffer, i32 bufferWidth, i32 width, i32 height, u8 color[4])
-{
-    if (color[0] == color[1] && color[0] == color[2] && color[0] == color[3])
-    {
-        memset(buffer, color[0],
-               (u32)bufferWidth * (u32)height * 4 * sizeof(u8));
-    }
-}
 
 int main()
 {
@@ -34,12 +16,6 @@ int main()
     i32 width = 800;
     i32 height = 600;
 
-    // if (mon)
-    // {
-    //     width = (i32)((float)mon->mode.w * mon->pixelRatio);
-    //     height = (i32)((float)mon->mode.h * mon->pixelRatio);
-    // }
-
     u8 *buffer = (u8 *)RGFW_alloc((u32)(width * height * 4));
     RGFW_surface *surface =
         RGFW_createSurface(buffer, width, height, RGFW_formatRGBA8);
@@ -47,7 +23,6 @@ int main()
     i8 running = 1;
 
     RGFW_event event;
-    float theta = 0;
 
     draw_buffer buffer_info = {
         .buffer = buffer,
@@ -58,18 +33,8 @@ int main()
     i32 mouseX = 0;
     i32 mouseY = 0;
 
-    #ifdef _WIN32
-    LARGE_INTEGER frequency;
-    LARGE_INTEGER last_time, current_time;
-    QueryPerformanceFrequency(&frequency);
-    QueryPerformanceCounter(&last_time);
-    #else
-    struct timespec last_time, current_time;
-    clock_gettime(CLOCK_MONOTONIC, &last_time);
-    #endif
-    double elapsed_time;
-    double accumulated_time = 0.0;
-    int frame_count = 0;
+    FPS_Counter fps_counter;
+    InitFPS(&fps_counter);
 
     while (running)
     {
@@ -85,42 +50,15 @@ int main()
         RGFW_pollEvents();
         RGFW_window_getMouse(win, &mouseX, &mouseY);
 
-        i32 w;
-        i32 h;
-        RGFW_window_getSize(win, &w, &h);
-
         u8 color[4] = {255, 255, 255, 255};
-        clear(buffer_info.buffer, width, w, h, color);
+        clear(buffer_info.buffer, width, width, height, color);
 
-        pixel_color line_color = {0, 0, 0, 255};
-        DrawLine(&buffer_info, (ivec2){.x = w / 2, .y = h / 2},
-                 (ivec2){.x = mouseX, .y = mouseY}, 3.0f, line_color);
+        vec2 trig_v1 = {200,300};
+        vec2 trig_v2 = {400, 200};
+        vec2 trig_v3 = {600, 300};
+        DrawTriangle(&buffer_info, trig_v1, trig_v2, trig_v3);
 
-        //--------Calculate FPS--------------
-        #ifdef _WIN32
-        QueryPerformanceCounter(&current_time);
-        elapsed_time = (double)(current_time.QuadPart - last_time.QuadPart) / frequency.QuadPart;
-        last_time = current_time;
-        #else
-        clock_gettime(CLOCK_MONOTONIC, &current_time);
-        elapsed_time = (current_time.tv_sec - last_time.tv_sec) +
-        (current_time.tv_nsec - last_time.tv_nsec) / 1000000000.0;
-        last_time = current_time;
-        #endif
-
-        accumulated_time += elapsed_time;
-        frame_count++;
-
-        if (accumulated_time >= 1.0)
-        {
-            char titleBuffer[64];
-            snprintf(titleBuffer, sizeof(titleBuffer), "Game - FPS: %d",
-                     frame_count);
-            RGFW_window_setName(win, titleBuffer);
-            accumulated_time -= 1.0;
-            frame_count = 0;
-        }
-        //------------------------------------
+        UpdateAndDisplayFPS(&fps_counter, win);
 
         RGFW_window_blitSurface(win, surface);
     }
