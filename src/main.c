@@ -33,8 +33,18 @@ int main()
     i32 mouseX = 0;
     i32 mouseY = 0;
 
+    vec3 eye = {0.0f, 0.0f, 0.0f};
+    vec3 look_at = {0.0f, 0.0f, -1.0f};
+    vec3 up = {0.0f, 1.0f, 0.0f};
+
+    mat4 model = mat4_identity();
+    mat4 view = mat4_look_at(eye, look_at, up);
+    mat4 projection = mat4_perspective(deg_to_rad(90.0f), (float)width / (float)height, 1.0f, 100.0f);
+
     FPS_Counter fps_counter;
     InitFPS(&fps_counter);
+
+    StaticMesh* cube = load_static_mesh_from_gltf("assets/Cube.glb");
 
     while (running)
     {
@@ -61,6 +71,7 @@ int main()
         UpdateAndDisplayFPS(&fps_counter, win);
 
         RGFW_window_blitSurface(win, surface);
+
     }
 
     RGFW_surface_free(surface);

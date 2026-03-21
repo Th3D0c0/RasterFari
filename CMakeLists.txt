@@ -13,6 +13,12 @@ file(GLOB_RECURSE SOURCES "src/*.c")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+add_custom_command(TARGET RasterFari POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/assets
+    ${CMAKE_CURRENT_BINARY_DIR}/assets
+)
+
 set(OpenGL_GL_Preference GLVND)
 if(WIN32)
     # Windows: Needs GDI for windows and OpenGL32 for graphics

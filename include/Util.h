@@ -13,7 +13,9 @@
 #endif
 
 #include "RGFW.h"
+#include "cgltf.h"
 
+#define PI 3.14159265359f
 
 typedef struct
 {
@@ -62,6 +64,28 @@ typedef struct
     vec2 max;
 } AABB;
 
+typedef struct {
+    union {
+        float m[16];
+
+        float m2[4][4];
+
+        struct {
+            float m00, m01, m02, m03;
+            float m10, m11, m12, m13;
+            float m20, m21, m22, m23;
+            float m30, m31, m32, m33;
+        };
+    };
+} mat4;
+
+typedef struct {
+    u32* indices;
+    u32 indices_count;
+    vec3* vertices;
+    u32 vertices_count;
+}StaticMesh;
+
 static inline void clear(u8 *buffer, i32 bufferWidth, i32 width, i32 height, u8 color[4])
 {
     if (color[0] == color[1] && color[0] == color[2] && color[0] == color[3])
@@ -71,16 +95,37 @@ static inline void clear(u8 *buffer, i32 bufferWidth, i32 width, i32 height, u8 
     }
 }
 
-void DrawLine(draw_buffer *buffer_info, ivec2 start, ivec2 end, float thickness,
-              pixel_color line_color);
-
 // Edge function using CCW winding order
 // Source "scratchapixel.com"
 static inline float EdgeFunction(const vec2 v0, const vec2 v1, const vec2 p){
     return (v0.x - v1.x) * (p.y - v0.y) - (v0.y - v1.y) * (p.x - v0.x);
 }
 
+static inline float deg_to_rad(float degrees) {
+    return degrees * (PI / 180.0f);
+}
+
+
+void DrawLine(draw_buffer *buffer_info, ivec2 start, ivec2 end, float thickness,
+              pixel_color line_color);
+
 void DrawTriangle(draw_buffer* buffer,const vec2 v0, const vec2 v1, const vec2 v2);
+
+mat4 mat4_multiply(const mat4 a, const mat4 b);
+
+mat4 mat4_identity(void);
+
+mat4 mat4_look_at(vec3 eye, vec3 center, vec3 up);
+
+mat4 mat4_perspective(float fov_y, float aspect, float near_plane, float far_plane);
+
+mat4 mat4_translate(vec3 translation);
+
+mat4 mat4_scale(vec3 scale);
+
+mat4 mat4_rotate_z(float angle_rad);
+
+void draw_cube(vec3 pos, vec3 rot);
 
 //----------- Timing Stuff ----------------
 typedef struct {
@@ -101,3 +146,5 @@ void InitFPS(FPS_Counter* fps);
 void UpdateAndDisplayFPS(FPS_Counter* fps, RGFW_window* win);
 
 //----------Timing Stuff End----------------
+
+StaticMesh *load_static_mesh_from_gltf(const char *file_path);
