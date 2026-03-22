@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 
 #include "RGFW.h"
@@ -38,6 +39,7 @@ int main()
     vec3 up = {0.0f, 1.0f, 0.0f};
 
     mat4 model = mat4_identity();
+    vec3 translation = {0, 0, 3};
     mat4 view = mat4_look_at(eye, look_at, up);
     mat4 projection = mat4_perspective(deg_to_rad(90.0f), (float)width / (float)height, 1.0f, 100.0f);
 
@@ -45,6 +47,7 @@ int main()
     InitFPS(&fps_counter);
 
     StaticMesh* cube = load_static_mesh_from_gltf("assets/Cube.glb");
+    float y_rotation = 0.0f;
 
     while (running)
     {
@@ -63,10 +66,17 @@ int main()
         u8 color[4] = {255, 255, 255, 255};
         clear(buffer_info.buffer, width, width, height, color);
 
+        /*
         vec2 trig_v1 = {200,300};
         vec2 trig_v2 = {400, 200};
         vec2 trig_v3 = {600, 300};
         DrawTriangle(&buffer_info, trig_v1, trig_v2, trig_v3);
+        */
+        model = mat4_rotate_y(y_rotation);
+        model = mat4_translate(model, translation);
+        draw_static_mesh(cube, &buffer_info , model, view, projection);
+        y_rotation += 0.01f;
+        fmodf(y_rotation, (2 * PI));
 
         UpdateAndDisplayFPS(&fps_counter, win);
 

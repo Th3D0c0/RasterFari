@@ -113,19 +113,24 @@ void DrawTriangle(draw_buffer* buffer,const vec2 v0, const vec2 v1, const vec2 v
 
 mat4 mat4_multiply(const mat4 a, const mat4 b);
 
+vec3 mat4_multiply_vec3(const mat4 m, const vec3 v) ;
+
 mat4 mat4_identity(void);
 
 mat4 mat4_look_at(vec3 eye, vec3 center, vec3 up);
 
 mat4 mat4_perspective(float fov_y, float aspect, float near_plane, float far_plane);
 
-mat4 mat4_translate(vec3 translation);
+mat4 mat4_get_translated_mat4(vec3 translation);
+
+mat4 mat4_translate(mat4 mat, vec3 translation);
 
 mat4 mat4_scale(vec3 scale);
 
 mat4 mat4_rotate_z(float angle_rad);
 
-void draw_cube(vec3 pos, vec3 rot);
+mat4 mat4_rotate_y(float angle_rad);
+
 
 //----------- Timing Stuff ----------------
 typedef struct {
@@ -148,3 +153,5 @@ void UpdateAndDisplayFPS(FPS_Counter* fps, RGFW_window* win);
 //----------Timing Stuff End----------------
 
 StaticMesh *load_static_mesh_from_gltf(const char *file_path);
+
+void draw_static_mesh(StaticMesh* mesh, draw_buffer* buffer, mat4 model, mat4 view, mat4 proj);

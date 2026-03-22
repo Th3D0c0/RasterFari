@@ -102,6 +102,25 @@ mat4 mat4_multiply(const mat4 a, const mat4 b)
     return result;
 }
 
+vec3 mat4_multiply_vec3(const mat4 m, const vec3 v) {
+    vec3 result = {0};
+
+    float w = 1.0f;
+
+    float x_prime = m.m00 * v.x + m.m10 * v.y + m.m20 * v.z + m.m30 * w;
+    float y_prime = m.m01 * v.x + m.m11 * v.y + m.m21 * v.z + m.m31 * w;
+    float z_prime = m.m02 * v.x + m.m12 * v.y + m.m22 * v.z + m.m32 * w;
+    float w_prime = m.m03 * v.x + m.m13 * v.y + m.m23 * v.z + m.m33 * w;
+
+    if (w_prime != 0.0f) {
+        result.x = x_prime / w_prime;
+        result.y = y_prime / w_prime;
+        result.z = z_prime / w_prime;
+    }
+
+    return result;
+}
+
 mat4 mat4_identity(void)
 {
     mat4 result = {0};
@@ -182,7 +201,7 @@ mat4 mat4_perspective(float fov_y, float aspect, float near_plane,
     return result;
 }
 
-mat4 mat4_translate(vec3 translation)
+mat4 mat4_get_translated_mat4(vec3 translation)
 {
     mat4 result = mat4_identity();
 
@@ -191,6 +210,14 @@ mat4 mat4_translate(vec3 translation)
     result.m31 = translation.y;
     result.m32 = translation.z;
 
+    return result;
+}
+
+mat4 mat4_translate(mat4 mat, vec3 translation){
+    mat4 result = mat;
+    result.m30 += translation.x;
+    result.m31 += translation.y;
+    result.m32 += translation.z;
     return result;
 }
 
@@ -374,11 +401,39 @@ StaticMesh *load_static_mesh_from_gltf(const char *file_path)
     return sm;
 }
 
-void free_model(cgltf_data *data)
-{
-    cgltf_free(data);
-}
+void draw_static_mesh(StaticMesh* mesh, draw_buffer* buffer, mat4 model, mat4 view, mat4 proj) {
+    mat4 mvp = mat4_multiply(mat4_multiply(proj, view), model);
 
-void draw_cube(vec3 pos, vec3 rot)
-{
+    i32 width = buffer->buffer_width;
+    i32 height = buffer->size / (width * 4);
+
+    for (size_t i = 0; i < mesh->indices_count; i += 3) {
+        uint32_t i1 = mesh->indices[i];
+        uint32_t i2 = mesh->indices[i+1];
+        uint32_t i3 = mesh->indices[i+2];
+
+        vec3 v1 = mesh->vertices[i1];
+        vec3 v2 = mesh->vertices[i2];
+        vec3 v3 = mesh->vertices[i3];
+
+        // Transform to NDC
+        v1 = mat4_multiply_vec3(mvp, v1);
+        v2 = mat4_multiply_vec3(mvp, v2);
+        v3 = mat4_multiply_vec3(mvp, v3);
+
+        // Map NDC to Screen Space Pixels
+        vec2 v1_2d;
+        v1_2d.x = (v1.x + 1.0f) * 0.5f * width;
+        v1_2d.y = (1.0f - v1.y) * 0.5f * height;
+
+        vec2 v2_2d;
+        v2_2d.x = (v2.x + 1.0f) * 0.5f * width;
+        v2_2d.y = (1.0f - v2.y) * 0.5f * height;
+
+        vec2 v3_2d;
+        v3_2d.x = (v3.x + 1.0f) * 0.5f * width;
+        v3_2d.y = (1.0f - v3.y) * 0.5f * height;
+
+        DrawTriangle(buffer, v1_2d, v2_2d, v3_2d);
+    }
 }
