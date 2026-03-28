@@ -51,6 +51,8 @@ int main()
 
     while (running)
     {
+        double delta = UpdateAndDisplayFPS(&fps_counter, win);
+
         while (RGFW_window_checkEvent(win, &event))
         {
             if (event.type == RGFW_quit ||
@@ -63,7 +65,7 @@ int main()
         RGFW_pollEvents();
         RGFW_window_getMouse(win, &mouseX, &mouseY);
 
-        u8 color[4] = {255, 255, 255, 255};
+        u8 color[4] = {100, 100, 200, 255};
         clear(buffer_info.buffer, width, width, height, color);
 
         /*
@@ -75,10 +77,9 @@ int main()
         model = mat4_rotate_y(y_rotation);
         model = mat4_translate(model, translation);
         draw_static_mesh(cube, &buffer_info , model, view, projection);
-        y_rotation += 0.01f;
+        y_rotation += 1.0f * delta;
         fmodf(y_rotation, (2 * PI));
 
-        UpdateAndDisplayFPS(&fps_counter, win);
 
         RGFW_window_blitSurface(win, surface);
 

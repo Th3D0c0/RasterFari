@@ -1,6 +1,7 @@
 #include "Util.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 
 inline void SetPixel(draw_buffer *buffer_info, const i32 x, const i32 y,
                      const pixel_color color)
@@ -133,29 +134,25 @@ mat4 mat4_identity(void)
     return result;
 }
 
+// https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/lookat-function/framing-lookat-function.html
 mat4 mat4_look_at(vec3 eye, vec3 center, vec3 up)
 {
     mat4 result = {0};
 
+    // Front
     vec3 f = {center.x - eye.x, center.y - eye.y, center.z - eye.z};
-    float f_len = sqrtf(f.x * f.x + f.y * f.y + f.z * f.z);
-    f.x /= f_len;
-    f.y /= f_len;
-    f.z /= f_len;
+    f = normalize_vec3(f);
 
-    vec3 s = {f.y * up.z - f.z * up.y, f.z * up.x - f.x * up.z,
-              f.x * up.y - f.y * up.x};
-    float s_len = sqrtf(s.x * s.x + s.y * s.y + s.z * s.z);
-    s.x /= s_len;
-    s.y /= s_len;
-    s.z /= s_len;
+    // Side
+    vec3 s = cross_vec3(f, up);
+    s = normalize_vec3(s);
 
-    vec3 u = {s.y * f.z - s.z * f.y, s.z * f.x - s.x * f.z,
-              s.x * f.y - s.y * f.x};
+    // Local up
+    vec3 u = cross_vec3(s, f);
 
-    float dot_s_eye = (s.x * eye.x) + (s.y * eye.y) + (s.z * eye.z);
-    float dot_u_eye = (u.x * eye.x) + (u.y * eye.y) + (u.z * eye.z);
-    float dot_f_eye = (f.x * eye.x) + (f.y * eye.y) + (f.z * eye.z);
+    float dot_s_eye = dot_vec3(s, eye);
+    float dot_u_eye = dot_vec3(u, eye);
+    float dot_f_eye = dot_vec3(f, eye);
 
     result.m00 = s.x;
     result.m01 = u.x;
@@ -180,6 +177,7 @@ mat4 mat4_look_at(vec3 eye, vec3 center, vec3 up)
     return result;
 }
 
+// https://www.songho.ca/opengl/gl_projectionmatrix.html
 mat4 mat4_perspective(float fov_y, float aspect, float near_plane,
                       float far_plane)
 {
@@ -289,7 +287,7 @@ void InitFPS(FPS_Counter *fps)
 #endif
 }
 
-void UpdateAndDisplayFPS(FPS_Counter *fps, RGFW_window *win)
+double UpdateAndDisplayFPS(FPS_Counter *fps, RGFW_window *win)
 {
     double elapsed_time;
 
@@ -321,7 +319,9 @@ void UpdateAndDisplayFPS(FPS_Counter *fps, RGFW_window *win)
         fps->accumulated_time -= 1.0;
         fps->frame_count = 0;
     }
+    return elapsed_time;
 }
+
 //-------------------Timing Stuff End-------------------
 
 StaticMesh *load_static_mesh_from_gltf(const char *file_path)
@@ -420,6 +420,11 @@ void draw_static_mesh(StaticMesh* mesh, draw_buffer* buffer, mat4 model, mat4 vi
         v1 = mat4_multiply_vec3(mvp, v1);
         v2 = mat4_multiply_vec3(mvp, v2);
         v3 = mat4_multiply_vec3(mvp, v3);
+
+        // Backface culling
+        // https://www.youtube.com/watch?v=dCzo86OgxEg&list=PLpM-Dvs8t0VaOBDp6cVRLBScgSJ2L8blq&index=4
+        vec3 cross = cross_v3f(v2.x - v1.x, v2.y-v1.y, 0.0f, v3.x - v1.x, v3.y - v1.y, 0.0);
+        if (cross.z >= 0.0f) continue;
 
         // Map NDC to Screen Space Pixels
         vec2 v1_2d;

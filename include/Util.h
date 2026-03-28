@@ -92,6 +92,20 @@ static inline void clear(u8 *buffer, i32 bufferWidth, i32 width, i32 height, u8 
     {
         memset(buffer, color[0],
                (u32)bufferWidth * (u32)height * 4 * sizeof(u8));
+        return;
+    }
+
+    /* else we'll have to something more complex... */
+    RGFW_UNUSED(width);
+    /* loop through each *pixel* (not channel) of the buffer */
+    u32 x, y;
+    for (y = 0; y < (u32)height; y++) {
+        for (x = 0; x < (u32)bufferWidth; x++) {
+            u32 index = (y * 4 * (u32)bufferWidth) + x * 4;
+
+            /* copy the color to that pixel */
+            memcpy(&buffer[index], color, 4 * sizeof(u8));
+        }
     }
 }
 
@@ -103,6 +117,30 @@ static inline float EdgeFunction(const vec2 v0, const vec2 v1, const vec2 p){
 
 static inline float deg_to_rad(float degrees) {
     return degrees * (PI / 180.0f);
+}
+
+static inline vec3 normalize_vec3(vec3 vec){
+    vec3 out;
+    float len = sqrtf(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+    out.x = vec.x / len;
+    out.y = vec.y / len;
+    out.z = vec.z / len;
+    return out;
+}
+
+static inline vec3 cross_vec3(vec3 v1, vec3 v2){
+ vec3 out = {(v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z), (v1.x * v2.y) - (v1.y * v2.x)};
+ return out;
+}
+
+static inline vec3 cross_v3f(float v1x, float v1y, float v1z, float v2x, float v2y, float v2z){
+    vec3 out = {(v1y * v2z) - (v1z * v2y), (v1z * v2x) - (v1x * v2z), (v1x * v2y) - (v1y * v2x)};
+    return out;
+}
+
+static inline float dot_vec3(vec3 v1, vec3 v2){
+    float out = (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+    return out;
 }
 
 
@@ -144,11 +182,13 @@ typedef struct {
     int frame_count;
 } FPS_Counter;
 
+
+
 // Initializes the timer state
 void InitFPS(FPS_Counter* fps);
 
 // Updates the time, increments frames, and updates the window title every second
-void UpdateAndDisplayFPS(FPS_Counter* fps, RGFW_window* win);
+double UpdateAndDisplayFPS(FPS_Counter* fps, RGFW_window* win);
 
 //----------Timing Stuff End----------------
 
