@@ -442,3 +442,69 @@ void draw_static_mesh(StaticMesh* mesh, draw_buffer* buffer, mat4 model, mat4 vi
         DrawTriangle(buffer, v1_2d, v2_2d, v3_2d);
     }
 }
+
+Input UpdateInput(RGFW_window* win){
+    RGFW_pollEvents();
+
+    Input new_input = {
+        .is_key_down_esc = RGFW_isKeyDown(RGFW_escape),
+        .is_key_down_w = RGFW_isKeyDown(RGFW_w),
+        .is_key_down_a = RGFW_isKeyDown(RGFW_a),
+        .is_key_down_s = RGFW_isKeyDown(RGFW_s),
+        .is_key_down_d = RGFW_isKeyDown(RGFW_d),
+        .is_key_down_space = RGFW_isKeyDown(RGFW_space),
+        .is_key_down_lctr = RGFW_isKeyDown(RGFW_controlL),
+
+        .is_key_just_pressed_esc = RGFW_isKeyPressed(RGFW_escape),
+        .is_key_just_pressed_w = RGFW_isKeyPressed(RGFW_w),
+        .is_key_just_pressed_a = RGFW_isKeyPressed(RGFW_a),
+        .is_key_just_pressed_s = RGFW_isKeyPressed(RGFW_s),
+        .is_key_just_pressed_d = RGFW_isKeyPressed(RGFW_d),
+        .is_key_just_pressed_space = RGFW_isKeyPressed(RGFW_space),
+
+        .is_key_released_esc = RGFW_isKeyReleased(RGFW_escape),
+        .is_key_released_w = RGFW_isKeyReleased(RGFW_w),
+        .is_key_released_a = RGFW_isKeyReleased(RGFW_a),
+        .is_key_released_s = RGFW_isKeyReleased(RGFW_s),
+        .is_key_released_d = RGFW_isKeyReleased(RGFW_d),
+        .is_key_released_space = RGFW_isKeyReleased(RGFW_space),
+        .is_key_released_lctr = RGFW_isKeyReleased(RGFW_controlL),
+
+        .isInFocus = RGFW_window_isInFocus(win),
+        .isFullscreen = RGFW_window_isFullscreen(win),
+        .isMinimized = RGFW_window_isMinimized(win),
+        .isMaximized = RGFW_window_isMaximized(win),
+        .posX = 0,
+        .posY = 0,
+        .screen_width = 0,
+        .screen_height = 0,
+
+        .leftMousePressed = RGFW_window_isMousePressed(win, RGFW_mouseLeft),
+        .rightMouseDown = RGFW_window_isMouseDown(win, RGFW_mouseRight),
+        .middleMouseReleased = RGFW_window_isMouseReleased(win, RGFW_mouseMiddle),
+        .scrollX = 0.0f,
+        .scrollY = 0.0f,
+        .mouseX = 0,
+        .mouseY = 0,
+        .vectorX = 0.0f,
+        .vectorY = 0.0f,
+
+        .drop = RGFW_window_didDataDrop(win),
+        .drag = RGFW_window_isDataDragging(win),
+        .dragX = 0,
+        .dragY = 0,
+        .data = NULL,
+        .count = 0
+    };
+
+    RGFW_window_getPosition(win, &new_input.posX, &new_input.posY);
+    RGFW_window_getSize(win, &new_input.screen_width, &new_input.screen_height);
+    RGFW_window_getMouse(win, &new_input.mouseX, &new_input.mouseY);
+    RGFW_getMouseVector(&new_input.vectorX, &new_input.vectorY);
+    RGFW_getMouseScroll(&new_input.scrollX, &new_input.scrollY);
+
+    RGFW_window_getDataDrag(win, &new_input.dragX, &new_input.dragY);
+    RGFW_window_getDataDrop(win, &new_input.data, &new_input.count);
+
+    return new_input;
+}

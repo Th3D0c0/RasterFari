@@ -49,10 +49,13 @@ int main()
     StaticMesh* cube = load_static_mesh_from_gltf("assets/Cube.glb");
     float y_rotation = 0.0f;
 
+    Input Input;
+
     while (running)
     {
         double delta = UpdateAndDisplayFPS(&fps_counter, win);
 
+        Input = UpdateInput(win);
         while (RGFW_window_checkEvent(win, &event))
         {
             if (event.type == RGFW_quit ||
@@ -62,24 +65,16 @@ int main()
                 break;
             }
         }
-        RGFW_pollEvents();
-        RGFW_window_getMouse(win, &mouseX, &mouseY);
 
         u8 color[4] = {100, 100, 200, 255};
         clear(buffer_info.buffer, width, width, height, color);
 
-        /*
-        vec2 trig_v1 = {200,300};
-        vec2 trig_v2 = {400, 200};
-        vec2 trig_v3 = {600, 300};
-        DrawTriangle(&buffer_info, trig_v1, trig_v2, trig_v3);
-        */
+
         model = mat4_rotate_y(y_rotation);
         model = mat4_translate(model, translation);
         draw_static_mesh(cube, &buffer_info , model, view, projection);
         y_rotation += 1.0f * delta;
         fmodf(y_rotation, (2 * PI));
-
 
         RGFW_window_blitSurface(win, surface);
 
