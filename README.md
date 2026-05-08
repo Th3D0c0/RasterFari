@@ -28,7 +28,7 @@ cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build && cd build && 
 cmake -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build && cd build && ./RasterFari
 ```
 
-## Windows Build Instructions
+## Windows Build Instructions (Currently only works using Visual Studio)
 
 **1. Configure the project (Release mode):**
 ```bash
