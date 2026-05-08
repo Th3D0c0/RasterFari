@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-inline void SetPixel(draw_buffer *buffer_info, const i32 x, const i32 y,
+inline void SetWindowPixel(draw_buffer *buffer_info, const i32 x, const i32 y,
                      const pixel_color color)
 {
     int index = buffer_info->buffer_width * 4 * y + x * 4;
@@ -26,7 +26,7 @@ void DrawLine(draw_buffer *buffer_info, ivec2 start, ivec2 end,
 
     while (true)
     {
-        SetPixel(buffer_info, start.x, start.y, line_color);
+        SetWindowPixel(buffer_info, start.x, start.y, line_color);
         i32 e2 = 2 * error;
 
         if (e2 >= dy)
@@ -79,7 +79,7 @@ void DrawTriangle(draw_buffer *buffer, const vec2 v0, const vec2 v1,
                 float g = w0 * c0.g + w1 * c1.g + w2 * c2.g;
                 float b = w0 * c0.b + w1 * c1.b + w2 * c2.b;
                 pixel_color color_changed = {r, g, b, 255};
-                SetPixel(buffer, x, y, color_changed);
+                SetWindowPixel(buffer, x, y, color_changed);
             }
         }
     }
