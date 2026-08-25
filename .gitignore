@@ -56,7 +56,7 @@ dkms.conf
 
 *..gitignore.kate-swp
 build/
-.chache/
+.cache/
 
 *.vs
 
