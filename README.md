@@ -1,48 +1,97 @@
 # RasterFari
 
+[![Build](https://github.com/Th3D0c0/RasterFari/actions/workflows/build.yml/badge.svg)](https://github.com/Th3D0c0/RasterFari/actions/workflows/build.yml)
 
-# Building RasterFari
+A software rasterizer written in C. Triangles are transformed and filled on the
+CPU into a colour buffer — no GPU rendering API does the drawing — and the
+finished buffer is blitted to a window through
+[RGFW](https://github.com/ColleagueRiley/RGFW).
 
-This project uses CMake to manage the build process. Windows and Linux compilers handle build configurations (Debug vs. Release) differently, so the commands vary slightly depending on your operating system. 
+![RasterFari rendering a vertex-coloured cube](docs/screenshot.png)
 
-## Prerequisites
+## Features
 
-**Windows:**
-* **CMake:** Installed and added to your system PATH.
-* **Compiler:** Visual Studio Build Tools (ensure the "Desktop development with C++" workload is selected during installation to provide the MSVC compiler).
+- Triangle rasterization using barycentric coordinates
+- Line rasterization using the Bresenham algorithm
+- Model / view / projection matrix pipeline with perspective projection
+- Backface culling
+- glTF (`.glb`) mesh loading via [cgltf](https://github.com/jkuhlmann/cgltf)
+- Frame rate shown in the window title
 
-**Linux (Tested on Arch-based System):**
-* **Build Tools:** `sudo pacman -S cmake base-devel`
-* **Required Libraries:** X11 and OpenGL development packages.
+## Controls
 
----
+| Key   | Action |
+| ----- | ------ |
+| `Esc` | Quit   |
 
-## Linux Build Instructions
+## Building
 
-**1. Configure the project (Release mode):**
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build && cd build && ./RasterFari
-```
-**2. Configure the project (Debug mode):**
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build && cd build && ./RasterFari
-```
+RasterFari builds with CMake. RGFW and cgltf are vendored in `include/`, so the
+only things you need to install are a compiler, CMake, and your platform's
+windowing and OpenGL development packages.
 
-## Windows Build Instructions (Currently only works using Visual Studio)
+### Windows
 
-**1. Configure the project (Release mode):**
-```bash
-cmake -B build 
+**Prerequisites**
+
+- [CMake](https://cmake.org/download/), available on your `PATH`
+- Visual Studio 2022 with the **Desktop development with C++** workload, which
+  provides the MSVC compiler
+
+**Build and run**
+
+```bat
+cmake -B build
 cmake --build build --config Release
-cd build
-./RasterFari
+cd build\Release
+RasterFari.exe
 ```
 
-**2. Configure the project (Debug mode):**
+For a debug build use `--config Debug`; the executable is then in
+`build\Debug`. Only the MSVC toolchain is tested on Windows.
+
+### Linux
+
+**Prerequisites**
+
+Debian / Ubuntu:
+
 ```bash
-cmake -B build 
-cmake --build build --config Debug
+sudo apt install build-essential cmake libx11-dev libxrandr-dev \
+                 libxcursor-dev libxi-dev libxext-dev libgl1-mesa-dev
+```
+
+Arch:
+
+```bash
+sudo pacman -S base-devel cmake libx11 libxrandr libxcursor libxi libxext mesa
+```
+
+Fedora:
+
+```bash
+sudo dnf install gcc cmake libX11-devel libXrandr-devel libXcursor-devel \
+                 libXi-devel libXext-devel mesa-libGL-devel
+```
+
+**Build and run**
+
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 cd build
 ./RasterFari
 ```
 
+For a debug build use `-DCMAKE_BUILD_TYPE=Debug`.
+
+## Assets
+
+The build copies `assets/` next to the executable, and RasterFari loads
+`assets/Cube.glb` relative to the current working directory — so run the binary
+from the directory it was built into. If the mesh cannot be found, RasterFari
+reports it and exits instead of crashing.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
