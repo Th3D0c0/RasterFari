@@ -312,7 +312,7 @@ double UpdateAndDisplayFPS(FPS_Counter *fps, RGFW_window *win)
     if (fps->accumulated_time >= 1.0)
     {
         char titleBuffer[64];
-        snprintf(titleBuffer, sizeof(titleBuffer), "Game - FPS: %d",
+        snprintf(titleBuffer, sizeof(titleBuffer), "RasterFari - FPS: %d",
                  fps->frame_count);
         RGFW_window_setName(win, titleBuffer);
 
