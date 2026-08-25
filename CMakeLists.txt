@@ -13,10 +13,14 @@ file(GLOB_RECURSE SOURCES "src/*.c")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_custom_command(TARGET RasterFari POST_BUILD
+# Copy the assets next to the executable after every build.
+# Using the target's own output directory instead of the build root keeps this
+# correct for multi-config generators such as Visual Studio, where the binary
+# ends up in build/Release or build/Debug rather than in build/ itself.
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/assets
-    ${CMAKE_CURRENT_BINARY_DIR}/assets
+    $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
 )
 
 set(OpenGL_GL_Preference GLVND)
