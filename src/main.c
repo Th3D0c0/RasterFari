@@ -47,6 +47,19 @@ int main()
     InitFPS(&fps_counter);
 
     StaticMesh* cube = load_static_mesh_from_gltf("assets/Cube.glb");
+    if (cube == NULL)
+    {
+        printf("Could not load 'assets/Cube.glb'.\n");
+        printf("The assets folder is looked up in the current working "
+               "directory, so run RasterFari from the folder that contains "
+               "it.\n");
+
+        RGFW_surface_free(surface);
+        RGFW_free(buffer);
+        RGFW_window_close(win);
+        return 1;
+    }
+
     float y_rotation = 0.0f;
 
     Input Input;
